@@ -1,0 +1,35 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node -r dotenv/config server.js",
+    "server": "nodemon -r dotenv/config server.js"
+  },
+  "dependencies": {
+    "@stripe/react-stripe-js": "^3.6.0",
+    "@stripe/stripe-js": "^7.2.0",
+    "bcrypt": "^5.1.1",
+    "chart.js": "^4.4.9",
+    "chartjs-plugin-datalabels": "^2.2.0",
+    "cloudinary": "^2.6.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "html2canvas": "^1.4.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.12.1",
+    "multer": "^1.4.5-lts.2",
+    "nodemon": "^3.1.9",
+    "razorpay": "^2.9.6",
+    "react-chartjs-2": "^5.3.0",
+    "react-slick": "^0.30.3",
+    "slick-carousel": "^1.8.1",
+    "stripe": "^18.0.0",
+    "validator": "^13.12.0"
+  }
+}
