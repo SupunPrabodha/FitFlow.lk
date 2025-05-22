@@ -3,6 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import PaymentForm from '../components/PaymentForm';
 import axios from 'axios';
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+
+// Load Stripe outside of the component to avoid recreating it on every render
+const stripePromise = loadStripe('pk_test_51OoHKuSJJwRYQZVPPXvRWqRWw5LRhGBDCrpkBHXUOvRNBLrLDr2HXGxPXHqpvEGPw8zxOJaFRrpNFtZwCPUGhHBX00vQxYPQEt');
 
 const Checkout = () => {
   const { cart, totalAmount, clearCart } = useCart();
@@ -115,43 +120,18 @@ const Checkout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 py-12 px-4">
-      <div className="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden">
-        <div className="p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Checkout</h2>
-          
-          <div className="mb-8">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Order Summary</h3>
-            <ul className="divide-y divide-gray-200">
-              {cart.map((item) => (
-                <li key={item.id} className="py-4 flex justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">{item.name}</p>
-                    <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
-                  </div>
-                  <p className="text-sm font-medium text-gray-900">
-                    ${(item.price * item.quantity).toFixed(2)}
-                  </p>
-                </li>
-              ))}
-            </ul>
-            <div className="border-t border-gray-200 mt-4 pt-4 flex justify-between">
-              <p className="text-base font-medium text-gray-900">Total</p>
-              <p className="text-base font-medium text-gray-900">${totalAmount.toFixed(2)}</p>
-            </div>
-          </div>
-
-          <div className="mt-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Payment Details</h3>
-            {clientSecret && (
-              <PaymentForm 
-                clientSecret={clientSecret}
-                orderId={orderId}
-                onSuccess={handlePaymentSuccess}
-                totalAmount={totalAmount}
-              />
-            )}
-          </div>
+    <div className="min-h-screen bg-gray-900 py-20">
+      <div className="container mx-auto px-4">
+        <div className="max-w-2xl mx-auto bg-gray-800 rounded-lg p-8">
+          <h1 className="text-3xl font-bold text-white mb-8 text-center">Checkout</h1>
+          <Elements stripe={stripePromise}>
+            <PaymentForm 
+              clientSecret={clientSecret}
+              orderId={orderId}
+              onSuccess={handlePaymentSuccess}
+              totalAmount={totalAmount}
+            />
+          </Elements>
         </div>
       </div>
     </div>

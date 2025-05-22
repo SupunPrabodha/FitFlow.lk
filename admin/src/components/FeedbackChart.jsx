@@ -35,7 +35,7 @@ const FeedbackChart = ({ analyticsData }) => {
     trend: useRef(null)
   };
 
-  // Process rating data with fallback for missing ratings
+  // Process rating data 
   const ratingData = {
     labels: ['1★', '2★', '3★', '4★', '5★'],
     datasets: [{
@@ -44,11 +44,11 @@ const FeedbackChart = ({ analyticsData }) => {
         return found?.count || 0;
       }),
       backgroundColor: [
-        '#ef4444', // Red for 1★
-        '#f97316', // Orange for 2★
-        '#f59e0b', // Yellow for 3★
-        '#10b981', // Green for 4★
-        '#3b82f6'  // Blue for 5★
+        '#ef4444', // Red for 1
+        '#f97316', // Orange for 2
+        '#f59e0b', // Yellow for 3
+        '#10b981', // Green for 4
+        '#3b82f6'  // Blue for 5
       ],
       borderWidth: 1
     }]
@@ -145,7 +145,6 @@ const FeedbackChart = ({ analyticsData }) => {
         </div>
       </div>
 
-      {/* Category Distribution Chart */}
       <div className="bg-gray-700 p-4 rounded-lg">
         <div className="flex justify-between items-center mb-4">
           <h4 className="text-lg font-semibold text-white">Category Distribution</h4>
@@ -178,7 +177,6 @@ const FeedbackChart = ({ analyticsData }) => {
         </div>
       </div>
 
-      {/* Monthly Trend Chart */}
       <div className="bg-gray-700 p-4 rounded-lg lg:col-span-2">
         <div className="flex justify-between items-center mb-4">
           <h4 className="text-lg font-semibold text-white">Monthly Feedback Trend</h4>

@@ -3,6 +3,14 @@ import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import CartSidebar from '../components/CartSidebar';
 
+// Import local images
+import proteinPowder from '../assets/images/protein-powder.jpg';
+import adjustableDumbbell from '../assets/images/adjustable-dumbbell.jpg';
+import treadmill from '../assets/images/treadmill.jpg';
+import yogaMat from '../assets/images/yoga-mat.jpg';
+import resistanceBands from '../assets/images/resistance-bands.jpg';
+import kettlebell from '../assets/images/kettlebell.jpg';
+
 const Store = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
@@ -13,20 +21,51 @@ const Store = () => {
     {
       id: 1,
       name: "Premium Protein Powder",
-      price: 59.99,
+      price: 17700, // Approx. $59.99 converted to LKR at 1 USD = 295 LKR
       category: "supplements",
-      image: "https://images.unsplash.com/photo-1599481238640-4c1288750d7a",
+      image: proteinPowder,
       description: "High-quality whey protein with 24g protein per serving"
     },
     {
       id: 2,
       name: "Adjustable Dumbbell Set",
-      price: 249.99,
+      price: 73750, // Approx. $249.99 converted to LKR at 1 USD = 295 LKR
       category: "equipment",
-      image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b",
+      image: adjustableDumbbell,
       description: "5-50lb adjustable dumbbells in a compact design"
     },
-    // Add more products as needed
+    {
+      id: 3,
+      name: "Motorized Treadmill",
+      price: 239000, // Based on Eser Marketing pricing for treadmills
+      category: "equipment",
+      image: treadmill,
+      description: "High-performance treadmill with adjustable incline and digital display"
+    },
+    {
+      id: 4,
+      name: "Premium Yoga Mat",
+      price: 5900, // Based on typical pricing for yoga mats in Sri Lanka
+      category: "equipment",
+      image: yogaMat,
+      description: "Non-slip, eco-friendly yoga mat for enhanced comfort and grip"
+    },
+    {
+      id: 5,
+      name: "Resistance Band Set",
+      price: 4900, // Based on Eser Marketing pricing for fitness accessories
+      category: "equipment",
+      image: resistanceBands,
+      description: "Set of 5 resistance bands for strength training and flexibility"
+    },
+    {
+      id: 6,
+      name: "16kg Kettlebell",
+      price: 12500, // Based on typical pricing for kettlebells in Sri Lanka
+      category: "equipment",
+      image: kettlebell,
+      description: "Cast iron kettlebell for full-body strength workouts"
+    }
   ];
 
   const filteredProducts = products.filter(product => {
@@ -104,7 +143,7 @@ const Store = () => {
               </div>
               <div className="p-4">
                 <h3 className="text-xl font-semibold text-white">{product.name}</h3>
-                <p className="text-orange-500 font-bold my-2">${product.price}</p>
+                <p className="text-orange-500 font-bold my-2">Rs {product.price}</p>
                 <p className="text-gray-400 mb-4">{product.description}</p>
                 <button 
                   onClick={() => addToCart(product)}

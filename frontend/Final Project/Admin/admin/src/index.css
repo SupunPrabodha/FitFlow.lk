@@ -1,0 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@100..900&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*{
+  font-family: Outfit;
+}
+
+select,input,texrarea{
+  border: 1px solid whitesmoke;
+  border-color: rgb(70, 31, 38);
+  border-radius: 4px;
+}
+
+.active{
+  background-color: rgb(222, 188, 188);
+  border-color: rgb(208, 93, 112);
+}

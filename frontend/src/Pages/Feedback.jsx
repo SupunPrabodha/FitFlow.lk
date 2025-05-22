@@ -4,8 +4,10 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Modal from "../components/Modal";
 import FeedbackSlides from "../components/FeedbackSlides";
+import { useNavigate } from "react-router-dom";
 
 const Feedback = () => {
+  const navigate = useNavigate();
   const { feedbacks, removeFeedback, updateFeedback } = useContext(FeedbackContext);
   const [feedbackForm, setFeedbackForm] = useState({
     name: "",
@@ -22,6 +24,37 @@ const Feedback = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [ratingFilter, setRatingFilter] = useState("all");
   const [sortOrder, setSortOrder] = useState("descending");
+
+  // Separate authentication check
+  useEffect(() => {
+    const userEmail = localStorage.getItem('userEmail');
+    const userData = localStorage.getItem('userData');
+
+    if (!userEmail || !userData) {
+      toast.error("Please log in to submit feedback", {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
+      navigate("/login");
+      return;
+    }
+
+    const parsedUserData = JSON.parse(userData);
+    setFeedbackForm(prev => ({
+      ...prev,
+      email: userEmail,
+      name: parsedUserData.name || ""
+    }));
+  }, []); // Empty dependency array as this should only run once on mount
+
+  // Separate effect for filtering feedbacks
+  useEffect(() => {
+    const userEmail = localStorage.getItem('userEmail');
+    if (userEmail && feedbacks.length > 0) {
+      const filtered = feedbacks.filter((f) => f.email === userEmail);
+      setMyFeedbacks(filtered);
+    }
+  }, [feedbacks]); // Only depend on feedbacks changes
 
   // Custom Star Rating Component
   const StarRating = ({ rating, setRating, size = "md", readOnly = false }) => {
@@ -51,13 +84,6 @@ const Feedback = () => {
       </div>
     );
   };
-
-  useEffect(() => {
-    if (feedbackForm.email) {
-      const filtered = feedbacks.filter((f) => f.email === feedbackForm.email);
-      setMyFeedbacks(filtered);
-    }
-  }, [feedbackForm.email, feedbacks]);
 
   const handleInputChange = (e) => {
     setFeedbackForm({
@@ -220,29 +246,17 @@ const Feedback = () => {
         <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg">
           <h2 className="text-2xl font-bold mb-6 text-center text-white">Share Your Feedback</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={feedbackForm.name}
-                  onChange={handleInputChange}
-                  placeholder="Your Name"
-                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={feedbackForm.email}
-                  onChange={handleInputChange}
-                  placeholder="Your Email"
-                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-                />
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-1">Name</label>
+              <input
+                type="text"
+                name="name"
+                value={feedbackForm.name}
+                onChange={handleInputChange}
+                placeholder="Your Name"
+                className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                readOnly
+              />
             </div>
 
             <div>
@@ -291,76 +305,66 @@ const Feedback = () => {
         </div>
       </div>
 
-      {/* My Feedbacks Section */}
+      {/* My Feedbacks Section - Now always visible */}
       <div className="w-full max-w-6xl px-4 mb-10">
-        <button 
-          onClick={toggleMyFeedbacks} 
-          className="w-full bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg mb-6 transition-colors duration-200 font-medium"
-        >
-          {showMyFeedbacks ? "HIDE MY FEEDBACK" : "VIEW MY FEEDBACK"}
-        </button>
-        
-        {showMyFeedbacks && (
-          <div className="bg-gray-800 p-6 rounded-xl border border-gray-700">
-            <h2 className="text-2xl font-bold mb-6 text-center text-white">My Feedback History</h2>
-            {myFeedbacks.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {myFeedbacks.map((feedback) => (
-                  <div
-                    key={feedback._id}
-                    className="bg-gray-800 p-5 rounded-lg border border-gray-700 hover:border-orange-500 transition-colors duration-200 cursor-pointer shadow-md"
-                    onClick={() => setExpandedFeedbackId(feedback._id === expandedFeedbackId ? null : feedback._id)}
-                  >
-                    <div className="flex justify-between items-start mb-3">
-                      <h3 className="font-bold text-lg text-white">{feedback.name}</h3>
-                      <span className="text-gray-400 text-sm">{new Date(feedback.date).toLocaleDateString()}</span>
-                    </div>
-                    <p className="text-gray-300 break-words line-clamp-2 mb-3">{feedback.review}</p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-400 capitalize">{feedback.category}</span>
-                      <StarRating rating={feedback.rating} readOnly={true} size="sm" />
-                    </div>
-
-                    {expandedFeedbackId === feedback._id && (
-                      <div className="mt-4 pt-4 border-t border-gray-700 animate-fadeIn">
-                        <div className="space-y-2 mb-4">
-                          <p className="text-gray-300"><span className="font-semibold text-white">Email:</span> {feedback.email}</p>
-                          <p className="text-gray-300"><span className="font-semibold text-white">Category:</span> {feedback.category}</p>
-                          <p className="text-gray-300"><span className="font-semibold text-white">Feedback:</span> {feedback.review}</p>
-                        </div>
-                        <div className="flex space-x-3">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDelete(feedback._id);
-                            }}
-                            className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-colors duration-200 flex-1 font-medium"
-                          >
-                            Delete
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleEdit(feedback);
-                            }}
-                            className="bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded-lg transition-colors duration-200 flex-1 font-medium"
-                          >
-                            Edit
-                          </button>
-                        </div>
-                      </div>
-                    )}
+        <div className="bg-gray-800 p-6 rounded-xl border border-gray-700">
+          <h2 className="text-2xl font-bold mb-6 text-center text-white">My Feedback History</h2>
+          {myFeedbacks.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {myFeedbacks.map((feedback) => (
+                <div
+                  key={feedback._id}
+                  className="bg-gray-800 p-5 rounded-lg border border-gray-700 hover:border-orange-500 transition-colors duration-200 cursor-pointer shadow-md"
+                  onClick={() => setExpandedFeedbackId(feedback._id === expandedFeedbackId ? null : feedback._id)}
+                >
+                  <div className="flex justify-between items-start mb-3">
+                    <h3 className="font-bold text-lg text-white">{feedback.name}</h3>
+                    <span className="text-gray-400 text-sm">{new Date(feedback.date).toLocaleDateString()}</span>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="bg-gray-800 p-8 rounded-xl border border-gray-700 text-center">
-                <p className="text-gray-400 text-lg">No feedback submissions found under your email.</p>
-                <p className="text-gray-500 mt-2">Share your experience with us!</p>
-              </div>
-            )}
-          </div>
-        )}
+                  <p className="text-gray-300 break-words line-clamp-2 mb-3">{feedback.review}</p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-400 capitalize">{feedback.category}</span>
+                    <StarRating rating={feedback.rating} readOnly={true} size="sm" />
+                  </div>
+
+                  {expandedFeedbackId === feedback._id && (
+                    <div className="mt-4 pt-4 border-t border-gray-700 animate-fadeIn">
+                      <div className="space-y-2 mb-4">
+                        <p className="text-gray-300"><span className="font-semibold text-white">Category:</span> {feedback.category}</p>
+                        <p className="text-gray-300"><span className="font-semibold text-white">Feedback:</span> {feedback.review}</p>
+                      </div>
+                      <div className="flex space-x-3">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(feedback._id);
+                          }}
+                          className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-colors duration-200 flex-1 font-medium"
+                        >
+                          Delete
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEdit(feedback);
+                          }}
+                          className="bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded-lg transition-colors duration-200 flex-1 font-medium"
+                        >
+                          Edit
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="bg-gray-800 p-8 rounded-xl border border-gray-700 text-center">
+              <p className="text-gray-400 text-lg">No feedback submissions found.</p>
+              <p className="text-gray-500 mt-2">Share your experience with us!</p>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Modal for Update Form */}

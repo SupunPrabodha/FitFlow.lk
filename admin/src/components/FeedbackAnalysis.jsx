@@ -24,7 +24,7 @@ const FeedbackAnalysis = ({ token, showAnalytics, setShowAnalytics }) => {
         params
       });
       
-      console.log("Analytics API Response:", response.data); // Debug log
+      console.log("Analytics API Response:", response.data); 
       
       if (response.data.success) {
         setAnalyticsData(response.data.analytics);

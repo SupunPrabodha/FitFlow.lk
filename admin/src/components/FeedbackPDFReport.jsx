@@ -1,6 +1,7 @@
 // FeedbackPDFReport.jsx
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet, PDFDownloadLink } from '@react-pdf/renderer';
+import gymConfig from '../config/gymConfig';
 
 const styles = StyleSheet.create({
   page: {
@@ -9,22 +10,41 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: 20,
-    textAlign: 'center'
+  },
+  gymHeader: {
+    marginBottom: 15,
+    textAlign: 'center',
+    borderBottom: '1pt solid #ccc',
+    paddingBottom: 10
+  },
+  gymName: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 5
+  },
+  gymDetails: {
+    fontSize: 10,
+    color: '#666',
+    marginBottom: 3
   },
   title: {
-    fontSize: 24,
-    marginBottom: 10
+    fontSize: 18,
+    marginBottom: 10,
+    textAlign: 'center',
+    marginTop: 10
   },
   date: {
     fontSize: 10,
-    color: 'grey'
+    color: 'grey',
+    textAlign: 'center'
   },
   table: {
     display: "flex",
     width: "100%",
     borderStyle: "solid",
     borderWidth: 1,
-    borderColor: "#bfbfbf"
+    borderColor: "#bfbfbf",
+    marginTop: 10
   },
   tableRow: {
     flexDirection: "row",
@@ -54,6 +74,20 @@ const FeedbackPDFReport = ({ feedbacks }) => {
     <Document>
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
+          <View style={styles.gymHeader}>
+            <Text style={styles.gymName}>{gymConfig.name}</Text>
+            <Text style={styles.gymDetails}>{gymConfig.address}</Text>
+            <Text style={styles.gymDetails}>
+              {gymConfig.city}, {gymConfig.state} - {gymConfig.pincode}
+            </Text>
+            <Text style={styles.gymDetails}>
+              Phone: {gymConfig.phone} | Email: {gymConfig.email}
+            </Text>
+            <Text style={styles.gymDetails}>
+              Website: {gymConfig.website}
+            </Text>
+          </View>
+          
           <Text style={styles.title}>Feedback Report</Text>
           <Text style={styles.date}>Generated on: {currentDate}</Text>
         </View>

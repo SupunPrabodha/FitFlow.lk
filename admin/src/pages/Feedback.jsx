@@ -4,7 +4,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
-import { PDFViewer, Document, Page, Text, View } from '@react-pdf/renderer';
+import { PDFDownloadButton } from '../components/CommonPDFReport';
 import FeedbackAnalysis from '../components/FeedbackAnalysis';
 
 const FeedbackList = ({ token }) => {
@@ -19,6 +19,16 @@ const FeedbackList = ({ token }) => {
   const [showReportPreview, setShowReportPreview] = useState(false);
   const [reportData, setReportData] = useState(null);
   const [showAnalytics, setShowAnalytics] = useState(false);
+
+  // Define columns for the PDF report
+  const reportColumns = {
+    name: 'Name',
+    email: 'Email',
+    category: 'Category',
+    rating: 'Rating',
+    review: 'Feedback',
+    date: 'Date'
+  };
 
   // Fetch feedback data
   const fetchFeedbacks = async () => {
@@ -82,19 +92,17 @@ const FeedbackList = ({ token }) => {
       : new Date(b.date) - new Date(a.date);
   });
 
-  // Generate report data
   const generateReportData = () => {
     return filteredFeedbacks.map(fb => ({
-      Name: fb.name,
-      Email: fb.email,
-      Category: fb.category,
-      Rating: `${fb.rating}/5`,
-      Feedback: fb.review,
-      Date: new Date(fb.date).toLocaleDateString(),
+      name: fb.name,
+      email: fb.email,
+      category: fb.category,
+      rating: `${fb.rating}/5`,
+      review: fb.review,
+      date: new Date(fb.date).toLocaleDateString()
     }));
   };
 
-  // Preview report
   const previewReport = () => {
     setReportLoading(true);
     try {
@@ -109,7 +117,6 @@ const FeedbackList = ({ token }) => {
     }
   };
 
-  // Download report
   const downloadReport = () => {
     if (!reportData) return;
     
@@ -137,7 +144,6 @@ const FeedbackList = ({ token }) => {
     }
   };
 
-  // PDF Document Component
   const PDFReportDocument = ({ data }) => (
     <Document>
       <Page style={{ padding: 30, fontSize: 12 }}>
@@ -155,7 +161,7 @@ const FeedbackList = ({ token }) => {
           borderWidth: 1,
           borderColor: '#e5e7eb'
         }}>
-          {/* Table Header */}
+          
           <View style={{ 
             flexDirection: 'row', 
             borderBottomWidth: 1,
@@ -252,21 +258,20 @@ const FeedbackList = ({ token }) => {
               <option value="pdf">PDF</option>
             </select>
             
-            <button
-              onClick={previewReport}
-              disabled={reportLoading || filteredFeedbacks.length === 0}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {reportLoading ? 'Generating...' : 'Preview Report'}
-            </button>
-            
-            {reportData && (
+            {reportType === 'pdf' ? (
+              <PDFDownloadButton
+                title="Feedback Report"
+                data={generateReportData()}
+                columns={reportColumns}
+                fileName={`feedback_report_${new Date().toISOString().slice(0,10)}.pdf`}
+              />
+            ) : (
               <button
                 onClick={downloadReport}
                 disabled={reportLoading}
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 disabled:opacity-50"
               >
-                Download {reportType.toUpperCase()}
+                {reportLoading ? 'Generating...' : `Download ${reportType.toUpperCase()}`}
               </button>
             )}
 

@@ -8,18 +8,22 @@ import trainerRouter from "./routes/trainerRoutes.js";
 import paymentRouter from "./routes/paymentRoute.js";
 import connectCloudinary from "./config/cloudinary.js";
 import mongoose from "mongoose";
+import bookingRoutes from "./routes/bookingRoutes.js"
+import chatRoutes from "./routes/chatRoutes.js"
 
 // Load environment variables first
-dotenv.config({ path: '../.env' }); // Adjust path if needed
+dotenv.config(); // Loads .env from backend directory
 
 console.log('Environment Variables:', {
   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY ? 'Loaded' : 'Missing',
   MONGODB_URI: process.env.MONGODB_URI ? 'Loaded' : 'Missing',
-  BACKEND_URL: process.env.VITE_BACKEND_URL
+  EMAIL_USER: process.env.EMAIL_USER ? 'Loaded' : 'Missing',
+  EMAIL_PASS: process.env.EMAIL_PASS ? 'Loaded' : 'Missing',
+  BACKEND_URL: process.env.VITE_BACKEND_URL,
 });
 
 // Verify required environment variables
-const requiredEnvVars = ['STRIPE_SECRET_KEY', 'MONGODB_URI', 'JWT_SECRET'];
+const requiredEnvVars = ['STRIPE_SECRET_KEY', 'MONGODB_URI', 'JWT_SECRET', 'EMAIL_USER', 'EMAIL_PASS'];
 requiredEnvVars.forEach(varName => {
   if (!process.env[varName]) {
     console.error(`Missing required environment variable: ${varName}`);
@@ -29,7 +33,6 @@ requiredEnvVars.forEach(varName => {
 
 const app = express();
 const PORT = process.env.PORT || 4000;
-
 
 // Enhanced CORS configuration
 app.use(cors({
@@ -55,7 +58,10 @@ connectCloudinary();
 app.use("/api/feedback", feedbackRouter);
 app.use("/api/user", userRouter);
 app.use("/api/trainer", trainerRouter);
-app.use("/api/payment", paymentRouter); // Add this line for payment routes
+app.use("/api/payment", paymentRouter);
+app.use('/api', bookingRoutes);
+app.use('/api/chat', chatRoutes);
+
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -82,7 +88,7 @@ app.use((err, req, res, next) => {
 
 // Start server
 const server = app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
   console.log(`Payment system ${process.env.STRIPE_SECRET_KEY ? 'ready' : 'not configured'}`);
 });
 

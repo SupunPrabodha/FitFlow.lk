@@ -1,0 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Tektur:wght@400..900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+a.active hr{
+  display: block;
+} 
+
+/* *{
+  font-family: Outfit;
+} */
+
+.prata-regular {
+  font-family: "Prata", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.Toastify__toast-container {
+  font-size: 16px;
+}
+
+.Toastify__toast {
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.Toastify__toast--success {
+  background: #ffffff !important;
+}
+
+.Toastify__toast--error {
+  background: #f44336 !important;
+}

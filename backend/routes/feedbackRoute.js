@@ -11,34 +11,28 @@ import {
 
 const router = express.Router();
 
-// Apply CORS and JSON parsing to all feedback routes
 router.use(express.json());
 
-// Feedback CRUD Operations
 router.post('/add', addFeedback);
 router.get('/list', listFeedback);
 router.get('/analytics', getFeedbackAnalytics);
 router.get('/single/:id', singleFeedback);
 router.put('/update/:feedbackId', updateFeedback);
-
-// Feedback Deletion
 router.delete('/remove/:feedbackId', removeFeedback);
 router.delete('/admin/remove/:feedbackId', removeAdminFeedback);
 
-// Test endpoint (remove in production)
 router.get('/test-data', async (req, res) => {
-  // Sample test data creation endpoint
   const testData = [
     {
-      name: "Test User 1",
+      name: "Test",
       email: "test1@example.com",
       category: "service",
-      review: "Great service!",
+      review: "Great service",
       rating: 5,
       date: new Date()
     },
     {
-      name: "Test User 2",
+      name: "Test",
       email: "test2@example.com",
       category: "facility",
       review: "Good facilities",

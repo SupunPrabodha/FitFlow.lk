@@ -4,8 +4,8 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const SignUp = () => {
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [membershipType, setMembershipType] = useState("");
+  const [paymentReceipt, setPaymentReceipt] = useState(null);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -36,17 +36,16 @@ const SignUp = () => {
       return;
     }
 
-    // Validate passwords
-    if (password.length !== 8) {
-      toast.error("Password must be exactly 8 characters.", {
+    if (!membershipType) {
+      toast.error("Please select a membership type.", {
         position: "top-right",
         autoClose: 3000,
       });
       return;
     }
 
-    if (password !== confirmPassword) {
-      toast.error("Passwords do not match.", {
+    if (!paymentReceipt) {
+      toast.error("Please upload a payment receipt.", {
         position: "top-right",
         autoClose: 3000,
       });
@@ -54,10 +53,17 @@ const SignUp = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/user/register", {
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("email", email);
+      formData.append("contactNumber", contactNumber);
+      formData.append("gender", gender);
+      formData.append("age", age);
+      formData.append("membershipType", membershipType);
+      formData.append("paymentReceipt", paymentReceipt);
+      const response = await fetch("http://localhost:4000/api/user/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, contactNumber, gender, age, password }),
+        body: formData,
       });
 
       const data = await response.json();
@@ -100,11 +106,12 @@ const SignUp = () => {
         <form
           className="bg-gray-800 shadow-xl rounded-xl p-8 border border-gray-700"
           onSubmit={handleSubmit}
+          encType="multipart/form-data"
         >
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-white mb-2">Create Account</h2>
             <div className="w-24 h-1 bg-orange-500 mx-auto"></div>
-            <p className="text-gray-400 mt-4">Join Forever Gym today</p>
+            <p className="text-gray-400 mt-4">Join FitFlow Gym </p>
           </div>
 
           {/* Name Field */}
@@ -117,7 +124,7 @@ const SignUp = () => {
               id="name"
               name="name"
               className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-white"
-              placeholder="Enter Your Name"
+              placeholder="Enter name"
               required
             />
           </div>
@@ -132,7 +139,7 @@ const SignUp = () => {
               id="email"
               name="email"
               className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-white"
-              placeholder="Enter Your E-mail"
+              placeholder="Enter email"
               required
             />
           </div>
@@ -181,7 +188,7 @@ const SignUp = () => {
                 id="age"
                 name="age"
                 className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-white"
-                placeholder="Age"
+                placeholder="YY"
                 min="1"
                 max="100"
                 required
@@ -189,34 +196,38 @@ const SignUp = () => {
             </div>
           </div>
 
-          {/* Password Field */}
+          {/* Membership Management Dropdown */}
           <div className="mb-4">
-            <label htmlFor="password" className="block text-gray-300 mb-2">
-              Password (8 characters)
+            <label htmlFor="membershipType" className="block text-gray-300 mb-2">
+              Membership Management
             </label>
-            <input
-              type="password"
-              id="password"
+            <select
+              id="membershipType"
+              name="membershipType"
               className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-white"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={membershipType}
+              onChange={e => setMembershipType(e.target.value)}
               required
-            />
+            >
+              <option value="" disabled>Select Membership Type</option>
+              <option value="monthly">Monthly</option>
+              <option value="3months">3 Months</option>
+              <option value="6months">6 Months</option>
+              <option value="annual">Annual</option>
+            </select>
           </div>
 
-          {/* Confirm Password Field */}
+          {/* Payment Receipt Upload */}
           <div className="mb-6">
-            <label htmlFor="confirmPassword" className="block text-gray-300 mb-2">
-              Confirm Password
+            <label htmlFor="paymentReceipt" className="block text-gray-300 mb-2">
+              Payment Receipt
             </label>
             <input
-              type="password"
-              id="confirmPassword"
+              type="file"
+              id="paymentReceipt"
+              name="paymentReceipt"
               className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-white"
-              placeholder="••••••••"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              onChange={(e) => setPaymentReceipt(e.target.files[0])}
               required
             />
           </div>
@@ -224,13 +235,13 @@ const SignUp = () => {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200 mb-4"
+            className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200"
           >
             Sign Up
           </button>
 
           {/* Login Link */}
-          <div className="text-center">
+          <div className="mt-6 text-center">
             <p className="text-gray-400">
               Already have an account?{" "}
               <Link

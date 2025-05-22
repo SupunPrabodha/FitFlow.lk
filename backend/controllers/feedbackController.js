@@ -1,7 +1,6 @@
 import feedbackModel from "../models/feedbackModel.js";
 import mongoose from 'mongoose';
 
-// Utility function for date validation
 const isValidDate = (dateString) => {
   return !isNaN(Date.parse(dateString));
 };
@@ -10,7 +9,6 @@ const getFeedbackAnalytics = async (req, res) => {
   try {
     let { startDate, endDate } = req.query;
     
-    // Set default to last 30 days if no dates provided
     if (!startDate) {
       startDate = new Date(new Date().setDate(new Date().getDate() - 30));
     } else {
@@ -23,7 +21,6 @@ const getFeedbackAnalytics = async (req, res) => {
       endDate = new Date(endDate);
     }
     
-    // Include the entire end date
     endDate.setHours(23, 59, 59, 999);
 
     console.log(`Fetching analytics from ${startDate} to ${endDate}`);
@@ -33,20 +30,19 @@ const getFeedbackAnalytics = async (req, res) => {
     };
 
     const [ratingDistribution, categoryDistribution, monthlyTrend] = await Promise.all([
-      // Rating distribution (1-5 stars)
       feedbackModel.aggregate([
         { $match: matchStage },
         { $group: { _id: "$rating", count: { $sum: 1 } } },
         { $sort: { _id: 1 } }
       ]),
       
-      // Category distribution
+      // Category
       feedbackModel.aggregate([
         { $match: matchStage },
         { $group: { _id: "$category", count: { $sum: 1 } } }
       ]),
       
-      // Monthly trend
+      // Monthly rep
       feedbackModel.aggregate([
         { $match: matchStage },
         { 

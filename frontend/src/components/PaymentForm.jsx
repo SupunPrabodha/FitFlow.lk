@@ -1,118 +1,108 @@
+import React, { useState } from 'react';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
+import axios from 'axios';
 
-const PaymentForm = ({ clientSecret, orderId, onSuccess, totalAmount }) => {
+function PaymentForm({ clientSecret, orderId, onSuccess, totalAmount }) {
   const stripe = useStripe();
   const elements = useElements();
-  const [error, setError] = useState(null);
-  const [processing, setProcessing] = useState(false);
-  const [stripeLoaded, setStripeLoaded] = useState(false);
+  const navigate = useNavigate();
+  const { clearCart } = useCart();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentError, setPaymentError] = useState(null);
 
-  useEffect(() => {
-    if (stripe && elements) {
-      setStripeLoaded(true);
-    }
-  }, [stripe, elements]);
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     
-    if (!stripe || !elements) {
-      setError('Payment system is still initializing. Please try again in a moment.');
+    if (!stripe || !elements || !clientSecret) {
       return;
     }
 
-    setProcessing(true);
-    setError(null);
+    setIsProcessing(true);
+    setPaymentError(null);
 
     try {
-      const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(
-        clientSecret, 
-        {
-          payment_method: {
-            card: elements.getElement(CardElement),
+      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: elements.getElement(CardElement),
+          billing_details: {
+            // Add any billing details if needed
           },
-        }
-      );
+        },
+      });
 
-      if (stripeError) {
-        throw stripeError;
+      if (error) {
+        setPaymentError(error.message);
+        return;
       }
 
-      onSuccess(paymentIntent);
-    } catch (err) {
-      console.error('Payment error:', err);
-      setError(err.message || "Payment processing failed");
+      if (paymentIntent.status === 'succeeded') {
+        // Confirm payment on backend
+        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000';
+        await axios.post(`${backendUrl}/api/payment/confirm-payment`, {
+          paymentId: paymentIntent.id,
+          orderId: orderId
+        });
+
+        clearCart();
+        onSuccess();
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+      setPaymentError(error.response?.data?.error || error.message || 'An error occurred while processing your payment.');
     } finally {
-      setProcessing(false);
+      setIsProcessing(false);
     }
   };
 
   return (
-    <div className="bg-gray-800 p-6 rounded-lg border border-gray-700">
-      {!stripeLoaded ? (
-        <div className="text-center py-8">
-          <div className="animate-pulse flex flex-col items-center space-y-4">
-            <div className="h-12 w-12 bg-orange-600 rounded-full"></div>
-            <div className="h-4 bg-gray-700 rounded w-3/4"></div>
-          </div>
-          <p className="mt-4 text-gray-400">Initializing payment system...</p>
-        </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="border border-gray-700 rounded-lg p-4 bg-gray-900">
-            <CardElement 
-              options={{
-                style: {
-                  base: {
-                    fontSize: '16px',
-                    color: '#f3f4f6',
-                    '::placeholder': {
-                      color: '#9ca3af',
-                    },
-                    iconColor: '#f59e0b',
-                  },
-                  invalid: {
-                    color: '#ef4444',
-                    iconColor: '#ef4444',
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="bg-gray-700 rounded-lg p-6">
+        <h2 className="text-xl font-semibold text-white mb-4">Payment Details</h2>
+        <div className="bg-gray-800 p-4 rounded-md">
+          <CardElement
+            options={{
+              style: {
+                base: {
+                  fontSize: '16px',
+                  color: '#ffffff',
+                  '::placeholder': {
+                    color: '#aab7c4',
                   },
                 },
-                hidePostalCode: true,
-              }} 
-            />
-          </div>
-          
-          {error && (
-            <div className="text-red-400 text-sm p-3 bg-red-900/30 rounded-lg border border-red-800">
-              {error}
-              {error.includes('Stripe.js') && (
-                <p className="mt-1 text-xs text-red-300">
-                  Try refreshing the page if this persists.
-                </p>
-              )}
-            </div>
-          )}
-          
-          <button
-            type="submit"
-            disabled={!stripeLoaded || processing}
-            className={`w-full py-3 px-4 rounded-lg font-medium transition-all ${
-              processing || !stripeLoaded
-                ? 'bg-orange-800 cursor-not-allowed'
-                : 'bg-orange-600 hover:bg-orange-700'
-            }`}
-          >
-            {!stripeLoaded 
-              ? 'Loading payment system...' 
-              : processing 
-                ? 'Processing...' 
-                : `Pay $${totalAmount.toFixed(2)}`
-            }
-          </button>
-        </form>
+              },
+            }}
+          />
+        </div>
+      </div>
+
+      {paymentError && (
+        <div className="bg-red-500 text-white p-4 rounded-lg">
+          {paymentError}
+        </div>
       )}
-    </div>
+
+      <div className="bg-gray-700 rounded-lg p-6">
+        <div className="flex justify-between text-white">
+          <p className="font-semibold">Total Amount:</p>
+          <p className="font-semibold">${totalAmount.toFixed(2)}</p>
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        disabled={!stripe || isProcessing || !clientSecret}
+        className={`w-full py-3 px-4 rounded-lg text-white font-semibold ${
+          !stripe || isProcessing || !clientSecret
+            ? 'bg-gray-500 cursor-not-allowed'
+            : 'bg-orange-600 hover:bg-orange-700'
+        }`}
+      >
+        {isProcessing ? 'Processing...' : 'Pay Now'}
+      </button>
+    </form>
   );
-};
+}
 
 export default PaymentForm;

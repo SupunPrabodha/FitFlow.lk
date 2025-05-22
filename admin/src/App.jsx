@@ -13,6 +13,7 @@ import List from "./pages/List";
 import EditTrainer from "./pages/EditTrainer"
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import AllMembers from "./pages/AllMembers";
 
 export const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -51,7 +52,7 @@ const App = () => {
             setSidebarOpen={setSidebarOpen} 
           />
           
-          <div className="flex pt-16"> {/* pt-16 to account for fixed navbar height */}
+          <div className="flex pt-16"> 
             <Sidebar 
               open={sidebarOpen} 
               setOpen={setSidebarOpen} 
@@ -69,10 +70,10 @@ const App = () => {
                   <Route path="/feedback" element={<Feedback token={token} />} />
                   <Route path="/plans" element={<Plan token={token} />} />
                   <Route path="/stock" element={<Stock token={token} />} />
-                  <Route path="/users" element={<User token={token} />} />
+                  <Route path="/members" element={<AllMembers token={token} />} />
                   <Route path="/add" element={<Add token={token} />} />
                   <Route path="/list" element={<List token={token} />} />
-                  <Route path="/edit-trainer/:id" element={<EditTrainer token={token} />} />
+                  <Route path="/edit-trainer" element={<EditTrainer token={token} />} />
                 </Routes>
               </div>
             </div>

@@ -8,46 +8,27 @@ import { CartProvider } from './context/CartContext';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 
-// Enhanced Stripe initialization
-const initializeStripe = async () => {
-  try {
-    const stripeKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
-    
-    // Validate the key format
-    if (!stripeKey || !stripeKey.startsWith('pk_')) {
-      throw new Error('Invalid Stripe publishable key format');
-    }
+// Initialize Stripe if key is available
+const stripeKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
+const stripePromise = stripeKey ? loadStripe(stripeKey) : null;
 
-    // Load Stripe with advanced options
-    return await loadStripe(stripeKey, {
-      betas: ['elements_enable_deferred_intent_beta_1'],
-      apiVersion: '2024-06-20',
-    });
-  } catch (err) {
-    console.error('Stripe initialization failed:', err);
-    // Return null to gracefully degrade
-    return null;
+// Wrap app with Stripe Elements only if stripe is initialized
+const StripeWrapper = ({ children }) => {
+  if (!stripePromise) {
+    console.warn('Stripe is not initialized. Payment features will be disabled.');
+    return children;
   }
+  return <Elements stripe={stripePromise}>{children}</Elements>;
 };
-
-// Initialize Stripe with error boundary
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
       <FeedbackContextProvider>
         <CartProvider>
-          {/* Only render Elements if stripePromise is resolved */}
-          {stripePromise ? (
-            <Elements stripe={stripePromise}>
-              <App />
-            </Elements>
-          ) : (
-            <div className="p-4 text-red-500">
-              Payment system unavailable. Please refresh or try again later.
-            </div>
-          )}
+          <StripeWrapper>
+            <App />
+          </StripeWrapper>
         </CartProvider>
       </FeedbackContextProvider>
     </BrowserRouter>

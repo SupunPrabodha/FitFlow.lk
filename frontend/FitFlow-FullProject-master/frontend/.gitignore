@@ -1,0 +1,28 @@
+# Logs
+logs
+*.log
+
+# Build and Dependency Artifacts
+node_modules
+dist
+dist-ssr
+*.local
+
+# Environment Files
+.env
+.env.local
+.env.*.local
+
+# Test Coverage
+coverage
+
+# Editor Directories and Files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.njsproj
+*.sln
+*.swp
+*.swo

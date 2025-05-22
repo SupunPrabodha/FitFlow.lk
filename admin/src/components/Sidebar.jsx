@@ -8,9 +8,9 @@ const Sidebar = ({ open, setOpen }) => {
     { path: "/feedback", name: "Feedback", icon: assets.order_icon },
     { path: "/plans", name: "Plans", icon: assets.order_icon },
     { path: "/stock", name: "Stock", icon: assets.order_icon },
-    { path: "/users", name: "Users", icon: assets.order_icon },
     { path: "/add", name: "Add Trainers", icon: assets.add_icon },
     { path: "/list", name: "List Trainers", icon: assets.order_icon },
+    { path: "/members", name: "View All Members", icon: assets.order_icon },
   ];
 
   return (
