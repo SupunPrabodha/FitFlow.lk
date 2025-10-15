@@ -14,7 +14,7 @@ const Contact = () => {
       'service_vyja4xq', // Service ID
       'template_rft33ku', // Template ID
       form.current,
-      'FWX_f3lpicRkQ_2yO' // Public Key
+      'YgyvXQ2nC4G0mSCiu' // Public Key
     )
     .then((result) => {
       toast.success('Message sent successfully!');
